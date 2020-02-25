@@ -1,0 +1,19 @@
+{
+  "name": "nsbv-mongo",
+  "version": "0.0.1",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "Eze Tojo",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "diskdb": "^0.1.17",
+    "nodemon": "^2.0.2"
+  }
+}
