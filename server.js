@@ -1,8 +1,36 @@
+require("dotenv").load();
 const express = require("express");
 const path = require("path");
-const db = require("diskdb");
+const mongoose = require("mongoose");
 
-db.connect("db", ["users", "posts", "comments"]);
+mongoose.Promise = global.Promise;
+
+mongoose.connect(process.env.mongourl, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+const db = mongoose.connection;
+
+if (!db) {
+  console.log("Error connection DB");
+} else {
+  console.log("DB connected successfully");
+}
+
+const Post = mongoose.model("Post", {
+  title: String,
+  content: String,
+  user: String,
+  date: Date
+});
+const User = mongoose.model("User", { name: String, email: String });
+const Comment = mongoose.model("Comment", {
+  content: String,
+  user: String,
+  post: String,
+  date: Date
+});
 
 const app = express();
 
@@ -24,38 +52,43 @@ app.get("/posts/add", (req, res) => {
 });
 
 app.get("/api/v1/users", (req, res) => {
-  let users = db.users.find();
-  res.json(users);
-  res.end();
+  User.find({}, (err, data) => {
+    if (!err) res.json(data);
+    res.end(500, err);
+  });
 });
 
 app.get("/api/v1/posts", (req, res) => {
-  let posts = db.posts.find();
-  res.json(posts);
+  Post.find({}, (err, data) => {
+    if (!err) res.json(data);
+    res.end(500, err);
+  });
 });
 
 app.post("/api/v1/posts", (req, res) => {
-  let newPost = req.body;
-  db.posts.save(newPost);
-  res.redirect("/posts");
+  let newPost = new Post(req.body);
+  newPost.save((err, data) => {
+    if (!err) res.redirect(`/posts/`);
+    res.end(500, err);
+  });
 });
 
 app.delete("/api/v1/posts/:id", (req, res) => {
   let id = req.params.id;
-  let removed = db.posts.remove({ _id: id }, false);
-  if (id) {
-    res.json("Item removed.");
-  } else {
-    res.json("Error. Couldn't remove item.");
-  }
+  Post.findOneAndDelete({ _id: id }, (err, data) => {
+    if (!err) res.json(data);
+    res.end(500, err);
+  });
 });
 
 app.get("/api/v1/comments", (req, res) => {
-  let comments = db.comments.find();
-  res.json(comments);
+  Comment.find({}, (err, data) => {
+    if (!err) res.json(data);
+    res.end(500, err);
+  });
 });
 
-app.get("*", (req, res) => res.send("Hello!"));
+app.get("*", (req, res) => res.send("Hello world!"));
 
 app.listen(port, () => {
   console.log(`App running on http://localhost:${port}`);

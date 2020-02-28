@@ -105,6 +105,8 @@ dist
 
 #Zeit Now
 .now
+#Zeit Now config
+now.json
 
 # Environment Variables
 .env

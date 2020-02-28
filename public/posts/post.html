@@ -32,34 +32,29 @@
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.slim.min.js'></script>
     <script>
         $(document).ready(function () {
-
-            getPosts();
-
-            function getPosts() {
-                $("#posts").empty();
-                fetch("../api/v1/posts").then(res => res.json()).then(data => {
-                    if (data.length) {
-                        data.map(post => {
-                            var postHtml = `
-                            <div class="post" id="${post._id}">
+            fetch("../api/v1/posts").then(res => res.json()).then(data => {
+                if (data.length) {
+                    data.map(post => {
+                        var postHtml = `
+                            <div class="post">
                                 <p><strong>${post.title}</strong><br>${post.content}</p>
                                 <button type="button" data-id="${post._id}" class="eliminar">x</button>
                                 <hr>
                             </div>`;
-                            $("#posts").append(postHtml);
-                        })
-                    } else {
-                        $("#posts").append("<p>No hay posts...</p>");
-                    }
-                });
-            }
+                        $("#posts").append(postHtml);
+                    })
+                } else {
+                    $("#posts").append("<p>No hay posts...</p>");
+                }
+            });
 
             var eliminar = function (id) {
                 fetch("../api/v1/posts/" + id, {
                     method: "DELETE",
                 })
                     .then(res => res.json())
-                    .then(res => { console.log(`Post '${res.title}' eliminado.`); getPosts(); })
+                    .then(res => alert(res))
+                    .then(location.reload())
             }
 
             $("#posts").on("click", ".eliminar", function (e) {
@@ -68,7 +63,7 @@
                 if (id) {
                     eliminar(id);
                 } else {
-                    window.alert("Error. Se necesita el ID.")
+                    alert("Error. Se necesita el ID.")
                 }
             })
         })
