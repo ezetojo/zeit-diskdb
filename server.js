@@ -1,36 +1,14 @@
-require("dotenv").load();
+const dotenv = require("dotenv").config();
 const express = require("express");
 const path = require("path");
-const mongoose = require("mongoose");
 
-mongoose.Promise = global.Promise;
+const db = require("./db.js");
 
-mongoose.connect(process.env.mongourl, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
-
-const db = mongoose.connection;
-
-if (!db) {
+if (!db.db) {
   console.log("Error connection DB");
 } else {
   console.log("DB connected successfully");
 }
-
-const Post = mongoose.model("Post", {
-  title: String,
-  content: String,
-  user: String,
-  date: Date
-});
-const User = mongoose.model("User", { name: String, email: String });
-const Comment = mongoose.model("Comment", {
-  content: String,
-  user: String,
-  post: String,
-  date: Date
-});
 
 const app = express();
 
@@ -52,21 +30,21 @@ app.get("/posts/add", (req, res) => {
 });
 
 app.get("/api/v1/users", (req, res) => {
-  User.find({}, (err, data) => {
+  db.user.find({}, (err, data) => {
     if (!err) res.json(data);
     res.end(500, err);
   });
 });
 
 app.get("/api/v1/posts", (req, res) => {
-  Post.find({}, (err, data) => {
+  db.post.find({}, (err, data) => {
     if (!err) res.json(data);
     res.end(500, err);
   });
 });
 
 app.post("/api/v1/posts", (req, res) => {
-  let newPost = new Post(req.body);
+  let newPost = new db.post(req.body);
   newPost.save((err, data) => {
     if (!err) res.redirect(`/posts/`);
     res.end(500, err);
@@ -75,14 +53,14 @@ app.post("/api/v1/posts", (req, res) => {
 
 app.delete("/api/v1/posts/:id", (req, res) => {
   let id = req.params.id;
-  Post.findOneAndDelete({ _id: id }, (err, data) => {
+  db.post.findOneAndDelete({ _id: id }, (err, data) => {
     if (!err) res.json(data);
     res.end(500, err);
   });
 });
 
 app.get("/api/v1/comments", (req, res) => {
-  Comment.find({}, (err, data) => {
+  db.comment.find({}, (err, data) => {
     if (!err) res.json(data);
     res.end(500, err);
   });

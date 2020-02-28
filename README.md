@@ -1,2 +1,3 @@
-# zeit-diskdb
-zeit now diskdb
+# zeit-mongo
+
+zeit mongo
